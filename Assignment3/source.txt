@@ -1,0 +1,5 @@
+Hello from Node.js Streams!
+This file is used to demonstrate readable and writable streams.
+Each line will be copied in chunks.
+Streams are memory efficient and fast.
+End of file.
