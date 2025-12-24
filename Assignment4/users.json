@@ -1,0 +1,9 @@
+[
+  { "id": 1, "name": "User One", "age": 32, "email": "user1@gmail.com" },
+  { "id": 2, "name": "User Two", "age": 24, "email": "user2@gmail.com" },
+  { "id": 3, "name": "User Three", "age": 21, "email": "user3@gmail.com" },
+  { "id": 4, "name": "User Four", "age": 26, "email": "user4@gmail.com" },
+  { "id": 5, "name": "User Five", "age": 29, "email": "user5@gmail.com" },
+  { "id": 6, "name": "User Six", "age": 23, "email": "user6@gmail.com" },
+  { "id": 7, "name": "User Seven", "age": 25, "email": "user7@gmail.com" }
+]
