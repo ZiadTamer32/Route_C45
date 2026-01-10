@@ -1,0 +1,27 @@
+CREATE DATABASE assignment5;
+
+(Suppliers)
+CREATE TABLE Suppliers (
+    SupplierID INT AUTO_INCREMENT PRIMARY KEY,
+    SupplierName VARCHAR(255) NOT NULL,
+    ContactNumber VARCHAR(20)
+);
+
+(Products)
+CREATE TABLE Products (
+    ProductID INT AUTO_INCREMENT PRIMARY KEY,
+    ProductName VARCHAR(200) NOT NULL,
+    Price DECIMAL NOT NULL,
+    StockQuantity INT NOT NULL,
+    SupplierID INT,
+    FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID)
+);
+
+(Sales)
+CREATE TABLE Sales (
+    SaleID INT AUTO_INCREMENT PRIMARY KEY,
+    ProductID INT,
+    QuantitySold INT NOT NULL,
+    SaleDate DATE NOT NULL,
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+);
