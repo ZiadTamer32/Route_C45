@@ -1,0 +1,106 @@
+// 1. Create a capped collection named "logs" with a size limit of 1MB
+db.createCollection("logs", {
+  capped: true,
+  size: 1048576
+});
+
+// 2. Authors: Create an author (Implicitly)
+db.authors.insertOne({
+  title: "Atomic Habits",
+  author: "James Clear"
+});
+
+// 3. Books: Create a book (insertOne)
+db.books.insertOne({
+  title: "The Great Gatsby",
+  author: "F. Scott Fitzgerald",
+  year: 1925,
+  genres: ["Classic", "Fiction"]
+});
+
+// 4. Books: Create many books (insertMany)
+db.books.insertMany([
+  { title: "1984", author: "George Orwell", year: 1949, genres: ["Dystopian", "Sci-Fi"] },
+  { title: "Brave New World", author: "Aldous Huxley", year: 1932, genres: ["Dystopian", "Sci-Fi"] }
+]);
+
+// 5. Books: Update a book where title is "Future" to have year 2022
+db.books.updateOne(
+  { title: "Future" },
+  { $set: { year: 2022 } }
+);
+
+// 6. Books: Find a specific book by title (e.g., "Brave New World")
+db.books.findOne({ title: "Brave New World" });
+
+// 7. Books: Find books between a year range (e.g., 1900 to 2000)
+db.books.find({
+  year: { $gte: 1900, $lte: 2000 }
+});
+
+// 8. Books: Find books with a specific genre (e.g., "Sci-Fi")
+db.books.find({
+  genres: { $in: ["Sci-Fi"] }
+});
+
+// 9. Books: Skip 2, limit 3, and sort by year descending
+db.books.aggregate([
+  { $skip: 2 },
+  { $limit: 3 },
+  { $sort: { year: -1 } }
+]);
+
+// 10. Books: Find books where the "year" field is an integer
+db.books.aggregate([
+  {
+    $match: {
+      year: { $type: "int" }
+    }
+  }
+]);
+
+// 11. Books: Find books that do NOT include "Horror" in genres
+db.books.find({
+  genres: { $nin: ["Horror"] }
+});
+
+// 12. Books: Delete books published before a certain year (e.g., 1950)
+db.books.deleteMany({
+  year: { $lt: 1950 }
+});
+
+// 13. Books: Aggregate - Match year >= 2000 and sort by year descending
+db.books.aggregate([
+  { $match: { year: { $gte: 2000 } } },
+  { $sort: { year: -1 } }
+]);
+
+// 14. Books: Aggregate - Project specific fields and match year >= 2000
+db.books.aggregate([
+  {
+    $project: {
+      title: 1,
+      author: 1,
+      year: 1,
+      _id: 0
+    }
+  },
+  { $match: { year: { $gte: 2000 } } }
+]);
+
+// 15. Books: Aggregate - Unwind the "genres" array
+db.books.aggregate([
+  { $unwind: "$genres" }
+]);
+
+// 16. Logs: Aggregate with $lookup to join with books
+db.logs.aggregate([
+  {
+    $lookup: {
+      from: "books",
+      localField: "book_id",
+      foreignField: "_id",
+      as: "bookData"
+    }
+  }
+]);
