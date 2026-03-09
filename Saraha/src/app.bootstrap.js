@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import { PORT } from "../config/app.config.js";
 import { globalErrorHandling } from "./Common/Response/response.js";
 import testDbConnection from "./DB/connection.js";
@@ -10,6 +11,7 @@ const bootstrap = () => {
 
   testDbConnection();
 
+  app.use(cors());
   app.use(express.json());
 
   app.use("/auth", authRouter);

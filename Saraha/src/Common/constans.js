@@ -1,6 +1,11 @@
-import { JWT_SECRET_ADMIN, JWT_SECRET_USER } from "../../config/app.config.js";
+import {
+  JWT_SECRET_ADMIN,
+  JWT_SECRET_ADMIN_REFRESH,
+  JWT_SECRET_USER,
+  JWT_SECRET_USER_REFRESH,
+} from "../../config/app.config.js";
 
 export const ROLE_SECRETS = {
-  user: JWT_SECRET_USER,
-  admin: JWT_SECRET_ADMIN,
+  user: [JWT_SECRET_USER, JWT_SECRET_USER_REFRESH],
+  admin: [JWT_SECRET_ADMIN, JWT_SECRET_ADMIN_REFRESH],
 };

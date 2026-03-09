@@ -57,7 +57,6 @@ const sendEmail = async (email, verificationToken) => {
         verificationToken,
       ),
     });
-    console.log("Message sent: %s", info.messageId);
   } catch (err) {
     throw new Error(`Error sending verification email: ${err}`);
   }
