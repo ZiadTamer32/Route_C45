@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { GenderEnum } from "../../Common/Enums/enums.js";
+import { GenderEnum, RoleEnum } from "../../Common/Enums/enums.js";
 
 export const signupSchema = {
   body: Joi.object({
@@ -25,6 +25,11 @@ export const signupSchema = {
       .valid(...Object.values(GenderEnum))
       .lowercase(),
 
+    role: Joi.string()
+      .valid(...Object.values(RoleEnum))
+      .lowercase()
+      .default(RoleEnum.user),
+
     profilePic: Joi.string().uri(),
 
     DOB: Joi.date().less("now"),
@@ -37,6 +42,7 @@ export const loginSchema = {
       .trim()
       .lowercase()
       .pattern(/^[a-zA-Z0-9._%+-]+@(gmail|yahoo|hotmail|outlook)\.(com|net)$/),
+
     userName: Joi.string().alphanum().min(3).max(15).trim(),
 
     password: Joi.string().required(),

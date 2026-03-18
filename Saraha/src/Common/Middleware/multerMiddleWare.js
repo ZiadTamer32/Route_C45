@@ -1,18 +1,25 @@
 import multer from "multer";
+import path from "node:path";
+import { mkdirSync, existsSync } from "node:fs";
 
 const allowedTypes = ["image"];
 const allowedExtensions = ["jpg", "jpeg", "png"];
 
-export function localMulter({ limits }) {
+export function localMulter({ folderName, limits }) {
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, "./uploads");
+      const fileName = path.resolve(`./uploads/${folderName}`);
+      if (!existsSync(fileName)) {
+        mkdirSync(fileName, { recursive: true });
+      }
+      cb(null, fileName);
     },
 
     filename: function (req, file, cb) {
       const ext = file.originalname.split(".")[1];
-      const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}.${ext}`;
-      cb(null, filename);
+      const fileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}.${ext}`;
+      file.finalPath = `uploads/${folderName}/${fileName}`;
+      cb(null, fileName);
     },
   });
 

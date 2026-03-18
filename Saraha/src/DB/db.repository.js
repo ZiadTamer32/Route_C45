@@ -29,3 +29,12 @@ export async function create({ model, bodyData, options = {} }) {
   const [result] = await model.create([bodyData], options);
   return result;
 }
+export async function updateOne({ model, filters, bodyData, options = {} }) {
+  const result = await model.updateOne(filters, bodyData, options);
+  return result;
+}
+
+export async function deleteOne({ model, filters, bodyData }) {
+  const result = await model.deleteOne(filters, bodyData);
+  return result;
+}

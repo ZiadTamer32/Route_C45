@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import path from "node:path";
+
 import { PORT } from "../config/app.config.js";
 import { globalErrorHandling } from "./Common/Response/response.js";
 import testDbConnection from "./DB/connection.js";
@@ -13,6 +15,8 @@ const bootstrap = () => {
 
   app.use(cors());
   app.use(express.json());
+
+  app.use("/uploads", express.static(path.resolve("./uploads")));
 
   app.use("/auth", authRouter);
   app.use("/user", userRouter);

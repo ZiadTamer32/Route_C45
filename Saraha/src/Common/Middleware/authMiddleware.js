@@ -2,8 +2,11 @@ import jwt from "jsonwebtoken";
 import { forbidden, unauthorized } from "../Response/response.js";
 import { ROLE_SECRETS } from "../constans.js";
 import { TokenEnum } from "../Enums/enums.js";
+import * as DBRepo from "../../DB/db.repository.js";
+import { TokenModel } from "../../DB/Models/TokenModel.js";
+import { UserModel } from "../../DB/Models/UserModel.js";
 
-export const authentication = (req, res, next) => {
+export const authentication = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -39,6 +42,32 @@ export const authentication = (req, res, next) => {
   }
 
   const verified = jwt.verify(token, secret);
+
+  const isTokenExist = await DBRepo.findOne({
+    model: TokenModel,
+    filters: { jti: verified.jti },
+  });
+
+  if (isTokenExist) {
+    return unauthorized(res, "Token has been revoked. Please log in again");
+  }
+
+  const isUserExist = await DBRepo.findById({
+    model: UserModel,
+    id: verified.id,
+  });
+
+  if (!isUserExist) {
+    return unauthorized(res, "User not found");
+  }
+
+  if (
+    isUserExist.changeCreditTime &&
+    isUserExist.changeCreditTime.getTime() > verified.iat * 1000
+  ) {
+    return unauthorized(res, "Token expired due to logout from all devices");
+  }
+
   req.user = verified;
   next();
 };
@@ -52,3 +81,11 @@ export const authorization = (...roles) => {
     next();
   };
 };
+
+// {
+//   id: '69b746faa87ad16e7889fad5',
+//   iat: 1773865639,
+//   exp: 1773866539,
+//   aud: [ 'admin', 'access' ],
+//   jti: '1ee4f679-04c7-4732-8d4f-8baf7d47eb9d'
+// }

@@ -59,10 +59,17 @@ const userSchema = new mongoose.Schema(
       enum: Object.values(ProviderEnum),
       default: ProviderEnum.system,
     },
+    visitCount: {
+      type: Number,
+      default: 0,
+    },
     profilePic: String,
+    gallery: [String],
+    coverPics: [String],
     otp: String,
     otpExpiresAt: Date,
     DOB: Date,
+    changeCreditTime: Date,
   },
   { timestamps: true },
 );

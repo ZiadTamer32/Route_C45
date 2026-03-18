@@ -1,7 +1,7 @@
 import * as DBRepo from "../../DB/db.repository.js";
 import jwt from "jsonwebtoken";
 import sendEmail from "../../Common/sendEmail.js";
-import crypto from "crypto";
+import { randomInt, randomUUID } from "crypto";
 import { UserModel } from "../../DB/Models/UserModel.js";
 import { compareOperation, hashOperation } from "../../Common/Security/hash.js";
 import { encryption } from "../../Common/Security/crypto.js";
@@ -14,14 +14,18 @@ const generateTokens = (user) => {
   const accessSign = ROLE_SECRETS[user.role][0];
   const refreshSign = ROLE_SECRETS[user.role][1];
 
+  const tokenId = randomUUID();
+
   const accessToken = jwt.sign({ id: user._id }, accessSign, {
     expiresIn: JWT_EXPIRES_IN,
     audience: [user.role, TokenEnum.access],
+    jwtid: tokenId,
   });
 
   const refreshToken = jwt.sign({ id: user._id }, refreshSign, {
     expiresIn: "1y",
     audience: [user.role, TokenEnum.refresh],
+    jwtid: tokenId,
   });
 
   return {
@@ -46,7 +50,7 @@ export const signup = async (bodyData) => {
 
   const phoneEncrypted = encryption(phone);
 
-  const OTP = crypto.randomInt(100000, 1000000).toString();
+  const OTP = randomInt(100000, 1000000).toString();
 
   const hashedOTP = await hashOperation({ plainText: OTP });
 

@@ -1,6 +1,8 @@
+import { Types } from "mongoose";
 import { badRequest } from "../Response/response.js";
+import Joi from "joi";
 
-function validation(schema) {
+export function validation(schema) {
   return (req, res, next) => {
     const validationErrors = {};
     for (const key of Object.keys(schema)) {
@@ -26,4 +28,11 @@ function validation(schema) {
   };
 }
 
-export default validation;
+export const objectIdValidator = Joi.string()
+  .custom((value, helpers) => {
+    if (!Types.ObjectId.isValid(value)) {
+      return helpers.error("any.invalid");
+    }
+    return value;
+  })
+  .messages({ "any.invalid": "Invalid MongoDB ObjectId format" });
