@@ -66,10 +66,12 @@ const userSchema = new mongoose.Schema(
     profilePic: String,
     gallery: [String],
     coverPics: [String],
-    otp: String,
-    otpExpiresAt: Date,
     DOB: Date,
     changeCreditTime: Date,
+    twoStepVerification: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );

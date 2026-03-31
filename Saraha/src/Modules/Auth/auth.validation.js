@@ -8,7 +8,7 @@ export const signupSchema = {
     email: Joi.string()
       .trim()
       .lowercase()
-      .pattern(/^[a-zA-Z0-9._%+-]+@(gmail|yahoo|hotmail|outlook)\.(com|net)$/)
+      // .pattern(/^[a-zA-Z0-9._%+-]+@(gmail|yahoo|hotmail|outlook)\.(com|net)$/)
       .required(),
 
     password: Joi.string()
@@ -41,10 +41,56 @@ export const loginSchema = {
     email: Joi.string()
       .trim()
       .lowercase()
-      .pattern(/^[a-zA-Z0-9._%+-]+@(gmail|yahoo|hotmail|outlook)\.(com|net)$/),
+      // .pattern(/^[a-zA-Z0-9._%+-]+@(gmail|yahoo|hotmail|outlook)\.(com|net)$/),
+      .required(),
 
     userName: Joi.string().alphanum().min(3).max(15).trim(),
 
     password: Joi.string().required(),
   }).xor("email", "userName"),
+};
+
+export const confirmOTPSchema = {
+  body: Joi.object({
+    otp: Joi.string()
+      .length(6)
+      .pattern(/^[0-9]{6}$/)
+      .required(),
+  }),
+};
+
+export const confirmLoginSchema = {
+  body: Joi.object({
+    email: Joi.string().trim().lowercase().required(),
+    otp: Joi.string()
+      .length(6)
+      .pattern(/^[0-9]{6}$/)
+      .required(),
+  }),
+};
+
+export const forgetPasswordSchema = {
+  body: Joi.object({
+    email: Joi.string().trim().lowercase().required(),
+  }),
+};
+
+export const resetPasswordSchema = {
+  body: Joi.object({
+    newPassword: Joi.string()
+      .pattern(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      )
+      .required(),
+    confirmPassword: Joi.string().valid(Joi.ref("newPassword")).required(),
+  }),
+  params: Joi.object({
+    token: Joi.string().required(),
+  }),
+};
+
+export const resendOTPSchema = {
+  body: Joi.object({
+    email: Joi.string().trim().lowercase().required(),
+  }),
 };

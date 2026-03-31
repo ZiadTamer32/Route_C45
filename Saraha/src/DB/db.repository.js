@@ -38,3 +38,43 @@ export async function deleteOne({ model, filters, bodyData }) {
   const result = await model.deleteOne(filters, bodyData);
   return result;
 }
+
+export async function findByIdAndUpdate({
+  model,
+  id,
+  bodyData,
+  options = { new: true },
+}) {
+  const result = await model.findByIdAndUpdate(id, bodyData, options);
+  return result;
+}
+
+export async function findByIdAndDelete({ model, id }) {
+  const result = await model.findByIdAndDelete(id);
+  return result;
+}
+
+export async function updateMany({ model, filters, bodyData, options = {} }) {
+  const result = await model.updateMany(filters, bodyData, options);
+  return result;
+}
+
+export async function deleteMany({ model, filters }) {
+  const result = await model.deleteMany(filters);
+  return result;
+}
+
+export async function insertMany({ model, data, options = {} }) {
+  const result = await model.insertMany(data, options);
+  return result;
+}
+
+export async function countDocuments({ model, filters = {} }) {
+  const result = await model.countDocuments(filters);
+  return result;
+}
+
+export async function aggregate({ model, pipeline = [] }) {
+  const result = await model.aggregate(pipeline);
+  return result;
+}

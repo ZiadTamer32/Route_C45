@@ -3,15 +3,16 @@ import { successResponse } from "../../Common/Response/response.js";
 import {
   authentication,
   authorization,
-} from "../../Common/Middleware/authMiddleware.js";
+} from "../../Middleware/authMiddleware.js";
 import * as userService from "./user.service.js";
-import { validation } from "../../Common/Middleware/validationMiddleware.js";
+import { validation } from "../../Middleware/validationMiddleware.js";
 import {
   updateCoverPicsSchema,
+  updatePasswordSchema,
   updateProfileSchema,
   userIdParamSchema,
 } from "./user.validation.js";
-import { localMulter } from "../../Common/Middleware/multerMiddleware.js";
+import { localMulter } from "../../Middleware/multerMiddleware.js";
 
 const userRouter = Router();
 
@@ -76,6 +77,16 @@ userRouter.get(
   async (req, res) => {
     const result = await userService.shareProfile(req.params.userId);
     return successResponse(res, 200, result);
+  },
+);
+
+userRouter.patch(
+  "/updatePassword",
+  authentication,
+  validation(updatePasswordSchema),
+  async (req, res) => {
+    const result = await userService.updatePassword(req.user, req.body);
+    return successResponse(res, 200, result.msg);
   },
 );
 

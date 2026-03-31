@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectIdValidator } from "../../Common/Middleware/validationMiddleware.js";
+import { objectIdValidator } from "../../Middleware/validationMiddleware.js";
 
 export const userIdParamSchema = {
   params: Joi.object({
@@ -18,5 +18,17 @@ export const updateCoverPicsSchema = {
     "array.min": "At least one cover picture is required",
     "array.max": "Cannot upload more than 2 cover pictures",
     "any.required": "Cover pictures are required",
+  }),
+};
+
+export const updatePasswordSchema = {
+  body: Joi.object({
+    currentPassword: Joi.string().required(),
+    newPassword: Joi.string()
+      .pattern(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      )
+      .required(),
+    confirmPassword: Joi.string().valid(Joi.ref("newPassword")).required(),
   }),
 };

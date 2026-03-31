@@ -10,3 +10,7 @@ export const decryption = (plainText) => {
   const originalText = bytes.toString(CryptoJS.enc.Utf8);
   return originalText;
 };
+
+// export const generateRandomString = (length) => {
+//   return crypto.randomBytes(length).toString("hex");
+// };
