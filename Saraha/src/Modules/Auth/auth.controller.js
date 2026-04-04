@@ -17,7 +17,7 @@ const authRouter = Router();
 
 authRouter.post("/signup", validation(signupSchema), async (req, res) => {
   const result = await authService.signup(req.body);
-  return successResponse(res, 200, result);
+  return successResponse(res, 201, result);
 });
 
 authRouter.post("/login", validation(loginSchema), async (req, res) => {

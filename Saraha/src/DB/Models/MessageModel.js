@@ -4,11 +4,14 @@ const messageSchema = new mongoose.Schema(
   {
     content: {
       type: String,
-      required: true,
-      minLength: 30,
-      maxLength: 150,
+      required: function () {
+        return !this.attachments.length;
+      },
+      minLength: 5,
+      maxLength: 1000,
       trim: true,
     },
+    attachments: [String],
     senderId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -22,4 +25,4 @@ const messageSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-export const messageModel = mongoose.model("Message", messageSchema);
+export const MessageModel = mongoose.model("Message", messageSchema);

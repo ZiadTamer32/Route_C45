@@ -11,6 +11,21 @@ export async function findOne({
   }
   return await query;
 }
+
+export async function find({
+  model,
+  filters = {},
+  select = "",
+  sort = {},
+  populateField = null,
+}) {
+  let query = model.find(filters).sort(sort).select(select);
+  if (populateField) {
+    query = query.populate(populateField);
+  }
+  return await query;
+}
+
 export async function findById({
   model,
   id,

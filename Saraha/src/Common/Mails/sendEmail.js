@@ -21,7 +21,6 @@ const sendEmail = async ({ to, subject, html }) => {
       subject,
       html,
     });
-    console.log("Message sent", info.messageId);
   } catch (err) {
     throw new Error(`Error sending verification email: ${err}`);
   }

@@ -3,12 +3,12 @@ import { GenderEnum, RoleEnum } from "../../Common/Enums/enums.js";
 
 export const signupSchema = {
   body: Joi.object({
-    userName: Joi.string().alphanum().min(3).max(15).trim().required(),
+    userName: Joi.string().min(3).max(15).trim().required(),
 
     email: Joi.string()
       .trim()
       .lowercase()
-      // .pattern(/^[a-zA-Z0-9._%+-]+@(gmail|yahoo|hotmail|outlook)\.(com|net)$/)
+      .pattern(/^[a-zA-Z0-9._%+-]+@(gmail|yahoo|hotmail|outlook)\.(com|net)$/)
       .required(),
 
     password: Joi.string()
@@ -41,7 +41,7 @@ export const loginSchema = {
     email: Joi.string()
       .trim()
       .lowercase()
-      // .pattern(/^[a-zA-Z0-9._%+-]+@(gmail|yahoo|hotmail|outlook)\.(com|net)$/),
+      .pattern(/^[a-zA-Z0-9._%+-]+@(gmail|yahoo|hotmail|outlook)\.(com|net)$/)
       .required(),
 
     userName: Joi.string().alphanum().min(3).max(15).trim(),

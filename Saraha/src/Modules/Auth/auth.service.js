@@ -377,6 +377,10 @@ export const forgetPassword = async (bodyData) => {
     return { message: "If this email exists, a reset link has been sent" };
   }
 
+  if (user.provider === ProviderEnum.google) {
+    return { message: "If this email exists, a reset link has been sent" };
+  }
+
   const resetToken = jwt.sign({ email: user.email }, JWT_SECRET_USER, {
     expiresIn: "10m",
   });
