@@ -9,6 +9,10 @@ export enum ProviderEnum {
 }
 
 export enum RoleEnum {
-  User,
-  Admin,
+  User = "user",
+  Admin = "admin",
+}
+export enum TokenEnum {
+  Access = "access",
+  Refresh = "refresh",
 }

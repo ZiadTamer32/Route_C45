@@ -4,6 +4,7 @@ import type {
   ProjectionType,
   QueryFilter,
   QueryOptions,
+  Types,
   UpdateQuery,
 } from "mongoose";
 
@@ -39,7 +40,7 @@ abstract class DBRepo<T> {
     projection,
     options,
   }: {
-    id: string;
+    id: string | Types.ObjectId;
     projection?: ProjectionType<T>;
     options?: QueryOptions<T>;
   }) {

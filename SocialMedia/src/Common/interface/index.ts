@@ -5,9 +5,9 @@ import { Request } from "express";
 export interface IUser {
   userName: string;
   email: string;
-  password: string;
-  phone: string;
-  gender: GenderEnum;
+  password?: string;
+  phone?: string;
+  gender?: GenderEnum;
   role?: RoleEnum;
   isVerified?: boolean;
   provider?: ProviderEnum;
@@ -22,4 +22,16 @@ export interface IUser {
 
 export interface IRequest extends Request {
   user?: JwtPayload;
+}
+
+export interface ILoginResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface ISocialLogin {
+  statusCode: number;
+  user: IUser;
+  accessToken: string;
+  refreshToken: string;
 }

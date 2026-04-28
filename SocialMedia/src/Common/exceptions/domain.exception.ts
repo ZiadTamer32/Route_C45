@@ -29,6 +29,11 @@ export class ConflictException extends AppError {
     super(message, 409, cause);
   }
 }
+export class TooManyRequestsException extends AppError {
+  constructor(message: string, cause?: unknown) {
+    super(message, 429, cause);
+  }
+}
 
 export class InternalServerErrorException extends AppError {
   constructor(message: string, cause?: unknown) {

@@ -36,10 +36,10 @@ export const commonValidation = {
   email: z
     .string()
     .email("Invalid email address")
-    .regex(
-      /^[a-zA-Z0-9._%+-]+@(gmail|yahoo|hotmail|outlook)\.(com|net)$/,
-      "Invalid email address",
-    )
+    // .regex(
+    //   /^[a-zA-Z0-9._%+-]+@(gmail|yahoo|hotmail|outlook)\.(com|net)$/,
+    //   "Invalid email address",
+    // )
     .toLowerCase(),
 
   password: z
@@ -53,4 +53,11 @@ export const commonValidation = {
     .string()
     .min(11, "Phone must be at least 11 characters long")
     .regex(/^01[0125][0-9]{8}$/, "Invalid phone number"),
+  objectId: z
+    .string()
+    .regex(/^[0-9a-fA-F]{24}$/, "Invalid MongoDB ObjectId format"),
+  OTP: z
+    .string()
+    .length(6, "OTP must be 6 digits")
+    .regex(/^[0-9]{6}$/, "Invalid OTP"),
 };

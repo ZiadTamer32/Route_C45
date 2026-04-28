@@ -1,10 +1,16 @@
-import mongoose from "mongoose";
+import mongoose, { HydratedDocument } from "mongoose";
 import {
   GenderEnum,
   ProviderEnum,
   RoleEnum,
 } from "../../Common/enums/index.js";
 import { IUser } from "../../Common/interface/index.js";
+import { hashOperation } from "../../Common/security/hash.js";
+import { encryption } from "../../Common/security/crypto.js";
+import sendOTP from "../../Common/mails/sendOTP.js";
+import { VERIFICATION_EMAIL_TEMPLATE } from "../../Common/constants.js";
+
+export type HUser = HydratedDocument<IUser>;
 
 const userSchema = new mongoose.Schema<IUser>(
   {
@@ -33,7 +39,6 @@ const userSchema = new mongoose.Schema<IUser>(
       required: function (): boolean {
         return this.provider === ProviderEnum.System;
       },
-      unique: true,
     },
     gender: {
       type: Number,
@@ -43,7 +48,7 @@ const userSchema = new mongoose.Schema<IUser>(
       },
     },
     role: {
-      type: Number,
+      type: String,
       required: true,
       enum: RoleEnum,
       default: RoleEnum.User,
@@ -68,10 +73,33 @@ const userSchema = new mongoose.Schema<IUser>(
     changeCreditTime: Date,
     twoStepVerification: {
       type: Boolean,
-      default: false,
+      default: function (): boolean | undefined {
+        return this.provider === ProviderEnum.System ? false : undefined;
+      },
     },
   },
   { timestamps: true },
 );
+
+userSchema.pre("save", async function (this: HUser & { wasNew: boolean }) {
+  this.wasNew = this.isNew;
+  if (this.isModified("password")) {
+    this.password = await hashOperation({ plainText: this.password as string });
+  }
+
+  if (this.phone && this.isModified("phone")) {
+    this.phone = encryption(this.phone);
+  }
+});
+
+userSchema.post("save", function (this: HUser & { wasNew: boolean }) {
+  if (this.wasNew) {
+    sendOTP({
+      email: this.email,
+      subject: "Verify your email",
+      template: VERIFICATION_EMAIL_TEMPLATE,
+    }).catch(err => console.error(`[Email Error] Failed to send OTP to ${this.email}:`, err));
+  }
+});
 
 export const UserModel = mongoose.model<IUser>("User", userSchema);

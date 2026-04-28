@@ -9,7 +9,7 @@ export function successResponse<T>({
   res: Response;
   statusCode?: number;
   message?: string;
-  data: T;
+  data?: T;
 }) {
   res.status(statusCode).json({ message, data });
 }
