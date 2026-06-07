@@ -9,6 +9,7 @@ import { hashOperation } from "../../Common/security/hash.js";
 import { encryption } from "../../Common/security/crypto.js";
 import sendOTP from "../../Common/mails/sendOTP.js";
 import { VERIFICATION_EMAIL_TEMPLATE } from "../../Common/constants.js";
+import { Types } from "mongoose";
 
 export type HUser = HydratedDocument<IUser>;
 
@@ -67,10 +68,18 @@ const userSchema = new mongoose.Schema<IUser>(
       default: 0,
     },
     profilePic: String,
-    coverPic: String,
+    friends: [
+      {
+        type: Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    coverPics: [String],
     gallery: [String],
     DOB: Date,
+    deletedAt: Date,
     changeCreditTime: Date,
+    isSoftDeleted: Boolean,
     twoStepVerification: {
       type: Boolean,
       default: function (): boolean | undefined {
@@ -83,12 +92,19 @@ const userSchema = new mongoose.Schema<IUser>(
 
 userSchema.pre("save", async function (this: HUser & { wasNew: boolean }) {
   this.wasNew = this.isNew;
-  if (this.isModified("password")) {
+  if (this.password && this.isModified("password")) {
     this.password = await hashOperation({ plainText: this.password as string });
   }
 
   if (this.phone && this.isModified("phone")) {
     this.phone = encryption(this.phone);
+  }
+});
+
+userSchema.pre(["findOne", "find"], function () {
+  const query = this.getQuery();
+  if (!query.isSoftDeleted) {
+    this.setQuery({ ...query, deletedAt: { $exists: false } });
   }
 });
 
@@ -98,7 +114,9 @@ userSchema.post("save", function (this: HUser & { wasNew: boolean }) {
       email: this.email,
       subject: "Verify your email",
       template: VERIFICATION_EMAIL_TEMPLATE,
-    }).catch(err => console.error(`[Email Error] Failed to send OTP to ${this.email}:`, err));
+    }).catch((err) =>
+      console.error(`Email Error Failed to send OTP to ${this.email}:`, err),
+    );
   }
 });
 

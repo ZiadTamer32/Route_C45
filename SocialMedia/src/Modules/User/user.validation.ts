@@ -13,8 +13,16 @@ export const updatePasswordSchema = {
       path: ["confirmPassword"],
     }),
 };
+
 export const logoutSchema = {
   body: z.object({
     options: z.enum(["all", "one"], { error: "Invalid Option" }),
+  }),
+};
+
+export const uploadProfilePicSchema = {
+  body: z.object({
+    mimeType: z.string(),
+    originalName: z.string(),
   }),
 };

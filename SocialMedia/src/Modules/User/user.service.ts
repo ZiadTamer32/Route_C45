@@ -8,17 +8,22 @@ import { decryption } from "../../Common/security/crypto.js";
 import { HUser } from "../../DB/Models/user.model.js";
 import UserRepo from "../../DB/repositories/user.repo.js";
 import RedisRepo from "../../DB/repositories/redis.repo.js";
+import S3BucketSerivce from "../../Common/S3Bucket/s3bucket.service.js";
 import { compareOperation, hashOperation } from "../../Common/security/hash.js";
+import { IProfilePicDto } from "./user.dto.js";
+import { Types } from "mongoose";
 
 class UserService {
   private userRepo: typeof UserRepo;
   private redisMethods: typeof RedisRepo;
+  private _s3BucketSerivce: typeof S3BucketSerivce;
   constructor() {
     this.userRepo = UserRepo;
     this.redisMethods = RedisRepo;
+    this._s3BucketSerivce = S3BucketSerivce;
   }
 
-  getUser = async (id: string) => {
+  getUser = async (id: Types.ObjectId | string) => {
     const user = await this.userRepo.findById({
       id,
       projection: {
@@ -46,9 +51,7 @@ class UserService {
     return user;
   };
 
-  enableTwoStepVerification = async (userId: string): Promise<void> => {
-    const user = (await this.userRepo.findById({ id: userId })) as HUser;
-
+  enableTwoStepVerification = async (user: HUser) => {
     if (!user) {
       throw new NotFoundException("User not found");
     }
@@ -61,9 +64,7 @@ class UserService {
     await user.save();
   };
 
-  disableTwoStepVerification = async (userId: string): Promise<void> => {
-    const user = (await this.userRepo.findById({ id: userId })) as HUser;
-
+  disableTwoStepVerification = async (user: HUser) => {
     if (!user) {
       throw new NotFoundException("User not found");
     }
@@ -76,10 +77,7 @@ class UserService {
     await user.save();
   };
 
-  logout = async (
-    tokenData: JwtPayload,
-    options: "all" | "one",
-  ): Promise<void> => {
+  logout = async (tokenData: JwtPayload, options: "all" | "one") => {
     const { jti, id } = tokenData;
 
     if (options === "all") {
@@ -88,11 +86,6 @@ class UserService {
         update: { changeCreditTime: new Date() },
       });
     } else {
-      // const days = Math.floor(expDuration / 86400);
-      // const hours = Math.floor((expDuration % 86400) / 3600);
-      // const minutes = Math.floor((expDuration % 3600) / 60);
-      // console.log(days, "days", hours, "hours", minutes, "minutes");
-
       await this.redisMethods.setString({
         key: `blackListToken::${id}::${jti}`,
         value: jti!,
@@ -102,14 +95,10 @@ class UserService {
   };
 
   updatePassword = async (
-    id: string,
+    user: HUser,
     bodyData: { currentPassword: string; newPassword: string },
-  ): Promise<void> => {
+  ) => {
     const { currentPassword, newPassword } = bodyData;
-
-    const user = await this.userRepo.findById({
-      id,
-    });
 
     if (!user) {
       throw new NotFoundException("User not found");
@@ -143,6 +132,46 @@ class UserService {
     user.password = hashedPassword;
     user.changeCreditTime = new Date();
     await user.save();
+  };
+
+  uploadProfilePic = async (userId: string, bodyData: IProfilePicDto) => {
+    const { key, url } = await this._s3BucketSerivce.createPreSignUrl({
+      mimeType: bodyData.mimeType,
+      originalName: bodyData.originalName,
+      path: `user/${userId}/profilePic`,
+    });
+
+    return { key, url };
+  };
+
+  uploadCoverPics = async (userId: string, files: Express.Multer.File[]) => {
+    const keys = await this._s3BucketSerivce.uploadFiles({
+      files,
+      path: `user/${userId}/coverPics`,
+    });
+    await this.userRepo.updateOne({
+      filter: { _id: userId },
+      update: { coverPics: keys },
+    });
+    return keys;
+  };
+
+  deleteUser = async (user: HUser) => {
+    await user.deleteOne();
+
+    const { Contents } = await this._s3BucketSerivce.listFiles(
+      `user/${user._id}`,
+    );
+
+    const Keys = Contents?.map((file) => {
+      return { Key: file.Key };
+    }) as { Key: string }[];
+
+    if (Contents?.length) {
+      await this._s3BucketSerivce.deleteFiles(Keys);
+    }
+
+    return Keys;
   };
 }
 

@@ -4,7 +4,10 @@ import { BadRequestException } from "../Common/exceptions/domain.exception.js";
 
 type ReqKey = keyof Request;
 
-export function validation(schema: Partial<Record<ReqKey, ZodType>>) {
+export function validation(
+  schema: Partial<Record<ReqKey, ZodType>>,
+  filesInBody = false,
+) {
   return (req: Request, res: Response, next: NextFunction) => {
     const validationErrors: Record<string, string> = {};
 
@@ -12,6 +15,10 @@ export function validation(schema: Partial<Record<ReqKey, ZodType>>) {
       const zodSchema = schema[key];
 
       if (!zodSchema) continue;
+
+      if (key === "body" && filesInBody) {
+        req.body.attachments = req.files;
+      }
 
       const result = zodSchema.safeParse(req[key]);
 

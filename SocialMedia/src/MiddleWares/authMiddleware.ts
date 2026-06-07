@@ -84,13 +84,14 @@ export const authentication = async (
     );
   }
 
-  req.user = verified;
+  req.tokenData = verified;
+  req.user = isUserExist;
   next();
 };
 
 export const authorization = (...roles: RoleEnum[]) => {
   return (req: IRequest, res: Response, next: NextFunction) => {
-    const [userRole] = req.user!.aud as [RoleEnum, TokenEnum];
+    const [userRole] = req.tokenData!.aud as [RoleEnum, TokenEnum];
     if (!roles.includes(userRole)) {
       throw new ForbiddenException("You don't have access to this endpoint");
     }

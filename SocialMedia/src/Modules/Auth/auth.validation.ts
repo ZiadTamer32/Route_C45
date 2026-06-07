@@ -24,6 +24,7 @@ export const loginSchema = {
   body: z.object({
     email: commonValidation.email,
     password: commonValidation.password,
+    FCM: z.string().optional(),
   }),
 };
 

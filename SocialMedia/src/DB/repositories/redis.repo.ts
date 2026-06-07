@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { client } from "../redis.connection.js";
 class RedisRepo {
   constructor() {}
@@ -55,6 +56,13 @@ class RedisRepo {
     if (!isExist) return 0;
     await client.set(key, value);
     return 1;
+  }
+
+  async addToSet(userId: Types.ObjectId | string, FCMToken: string) {
+    return await client.sAdd(`FCMToken::${userId}`, FCMToken);
+  }
+  async getSet(userId: Types.ObjectId | string) {
+    return await client.sMembers(`FCMToken::${userId}`);
   }
 }
 

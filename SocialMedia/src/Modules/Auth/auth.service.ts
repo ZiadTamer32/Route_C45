@@ -35,13 +35,16 @@ import sendOTP from "../../Common/mails/sendOTP.js";
 import attempts from "../../Common/security/attempts.js";
 import { OAuth2Client, TokenPayload } from "google-auth-library";
 import sendEmail from "../../Common/mails/sendEmail.js";
+import firebaseService from "../../Common/FireBase/firebase.service.js";
 
 class AuthService {
   private userRepo: typeof UserRepo;
   private redisMethods: typeof RedisRepo;
+  private _firbaseService: typeof firebaseService;
   constructor() {
     this.userRepo = UserRepo;
     this.redisMethods = RedisRepo;
+    this._firbaseService = firebaseService;
   }
 
   generateTokens = (user: HUser): ILoginResponse => {
@@ -144,6 +147,15 @@ class AuthService {
     }
 
     const { accessToken, refreshToken } = this.generateTokens(user as HUser);
+
+    if (bodyData.FCM) {
+      await this.redisMethods.addToSet(`FCMToken::${user._id}`, bodyData.FCM);
+      await this._firbaseService.sendNotification({
+        token: bodyData.FCM,
+        title: "Login",
+        body: "You logged in successfully",
+      });
+    }
 
     return { accessToken, refreshToken };
   };
@@ -309,9 +321,13 @@ class AuthService {
   };
 
   forgetPassword = async (email: string): Promise<string> => {
-    const isBlocked = await this.redisMethods.getString(`BLOCK::${email}::forgetPassword`);
+    const isBlocked = await this.redisMethods.getString(
+      `BLOCK::${email}::forgetPassword`,
+    );
     if (isBlocked) {
-      throw new TooManyRequestsException("Too many requests. Please try again later.");
+      throw new TooManyRequestsException(
+        "Too many requests. Please try again later.",
+      );
     }
 
     await attempts({
